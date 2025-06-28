@@ -1,5 +1,4 @@
 import pymongo
-import datetime
 
 class mongo_connector:
 
