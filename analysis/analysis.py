@@ -7,7 +7,7 @@ from db.connector import mongo_connector
 
 class analysis_db:
     def __init__(self):
-        self.conexion = 
+        self.conexion = mongo_connector("localhost", "27013", "mauro", "vinoblanco123")
         self.db = self.conexion.get_db("tienda")
         
     
@@ -143,6 +143,57 @@ class analysis_db:
         #ordeno de mayor a menor por cantidad de ventas de cada producto, como solo hay 5 productos no puse un limite en le head.
         print(df.sort_values(by='cant_ventas_prod', ascending=False).head())
 
+#•	Por ubicación
+    def segmentacion_clientes_ubicacion(self):
+        df = pd.DataFrame(pd.json_normalize(self.obtener_datos("ventas")))
+
+        #tomo las columnas que considero necesarias para una buena segmentación
+        df = df[['datos_cliente.nombre_cliente', 'datos_cliente.email', 'datos_cliente.domicilio.pais', 'datos_cliente.domicilio.provincia', 'datos_cliente.domicilio.localidad']]
+
+        #elimino las duplicaciones de clientes ya que no me interesan para este analisis
+        df.drop_duplicates(subset='datos_cliente.nombre_cliente', inplace=True)
+
+        #ordeno por pais - prov - localidad y calculo la cantidad por ubicacion de cada combinacion
+        print(df.groupby(['datos_cliente.domicilio.pais','datos_cliente.domicilio.provincia', 'datos_cliente.domicilio.localidad']).size())
+
+#•	Por volumen de compras (cuanto gasta en promedio)
+    def segmentacion_clientes_volCompras(self):
+        df = pd.DataFrame(pd.json_normalize(self.obtener_datos("ventas")))
+
+        #dejo las columnas necesarias para el analisis
+        df = df[['datos_cliente.nombre_cliente', 'datos_cliente.email','orden_compra.precio_total']]
+        
+        #obtengo el gasto promedio de las compras de cada cliente y lo guardo en una nueva tabla
+        df['gasto_promedio'] = df.groupby(['datos_cliente.nombre_cliente', 'datos_cliente.email'])['orden_compra.precio_total'].transform('mean').round(decimals=2)
+
+        #ya no me interesa precio total asi que dejo la columna
+        df = df[['datos_cliente.nombre_cliente', 'datos_cliente.email', 'gasto_promedio']]
+
+        #elimino la duplicacion de clientes ya que hay repeticion de datos de gasto promedio por cada entrada de ese cliente
+        df.drop_duplicates(subset='datos_cliente.email', inplace=True)
+
+        #muestro de mayor a menor por gasto promedio
+        print(df.sort_values(by='gasto_promedio', ascending=False))
+
+#•	Por categorías preferidas
+    def segmentacion_clientes_categoriasPreferidas(self):
+        #consigo el dataframe de los productos con su orden de compra para mergear con los datos del cliente que hizo esa compra
+        dfProducto = pd.DataFrame(pd.json_normalize(self.obtener_datos("ventas"), record_path=['orden_compra','productos'], meta=[['orden_compra','id_orden']]))
+        #obtengo las categorias fuera del array como una fila cada uno
+        dfProducto = dfProducto.explode('categorias',ignore_index=True)
+
+        #consigo el datafrme con los datos del cliente y el id de orden
+        dfClientes = pd.DataFrame(pd.json_normalize(self.obtener_datos("ventas")))
+        dfClientes = dfClientes[['datos_cliente.nombre_cliente', 'datos_cliente.email', 'orden_compra.id_orden']]
+        
+        #uno ambos dataframe por el id_orden para tener las categorias asociadas al cliente que la compro
+        dfClientesXProd = pd.merge(dfClientes,dfProducto, on='orden_compra.id_orden')
+        
+        #limpio columnas no deseadas
+        dfClientesXProd = dfClientesXProd[['datos_cliente.nombre_cliente', 'datos_cliente.email', 'nombre_producto', 'categorias']]
+
+        #obtengo las compras de cada categoria por cliente.
+        print(dfClientesXProd.groupby(['datos_cliente.nombre_cliente', 'datos_cliente.email'])['categorias'].value_counts())
 
 aux = analysis_db()
 #aux.cant_clientes_por_ubicacion()
@@ -152,5 +203,7 @@ aux = analysis_db()
 #aux.total_ventas_mes()
 #aux.ingreso_prom_por_cliente()
 #aux.retencion_clientes()
-aux.mejores_productos()
-
+#aux.mejores_productos()
+#aux.segmentacion_clientes_ubicacion()
+#aux.segmentacion_clientes_volCompras()
+#aux.segmentacion_clientes_categoriasPreferidas()
