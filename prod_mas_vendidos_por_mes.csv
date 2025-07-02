@@ -1,0 +1,40 @@
+,nombre_producto,identificador_producto,categorias,precio_unitario,año_compra,mes_compra,cantidad_ventas_mes
+0,Jean Azul Slim,JN7721AZ,"['urbano', 'jeans', 'azul', 'moda']",32500,2025,5,59
+1,Gorra Classic Negra,GR5512BK,"['accesorios', 'negro', 'verano', 'urbano']",9200,2025,5,41
+2,Zapatillas Running Pro,ZP9001BK,"['deporte', 'calzado', 'running', 'negro']",67800,2025,6,44
+3,Campera Liviana Impermeable,CM9903GR,"['invierno', 'exterior', 'verde', 'impermeable']",45200,2025,3,46
+4,Remera Urbana Blanca,RM1189BL,"['verano', 'camisetas', 'urbano', 'blanco', 'moda']",18500,2025,3,53
+6,Campera Liviana Impermeable,CM9903GR,"['invierno', 'exterior', 'verde', 'impermeable']",45200,2025,4,47
+7,Remera Urbana Blanca,RM1189BL,"['verano', 'camisetas', 'urbano', 'blanco', 'moda']",18500,2025,4,24
+8,Zapatillas Running Pro,ZP9001BK,"['deporte', 'calzado', 'running', 'negro']",67800,2025,3,46
+9,Gorra Classic Negra,GR5512BK,"['accesorios', 'negro', 'verano', 'urbano']",9200,2025,3,34
+10,Remera Urbana Blanca,RM1189BL,"['verano', 'camisetas', 'urbano', 'blanco', 'moda']",18500,2025,5,63
+11,Gorra Classic Negra,GR5512BK,"['accesorios', 'negro', 'verano', 'urbano']",9200,2025,4,55
+12,Jean Azul Slim,JN7721AZ,"['urbano', 'jeans', 'azul', 'moda']",32500,2025,6,46
+13,Remera Urbana Blanca,RM1189BL,"['verano', 'camisetas', 'urbano', 'blanco', 'moda']",18500,2025,6,48
+22,Jean Azul Slim,JN7721AZ,"['urbano', 'jeans', 'azul', 'moda']",32500,2025,4,31
+24,Campera Liviana Impermeable,CM9903GR,"['invierno', 'exterior', 'verde', 'impermeable']",45200,2025,6,49
+27,Zapatillas Running Pro,ZP9001BK,"['deporte', 'calzado', 'running', 'negro']",67800,2025,4,24
+28,Campera Liviana Impermeable,CM9903GR,"['invierno', 'exterior', 'verde', 'impermeable']",45200,2025,5,42
+32,Zapatillas Running Pro,ZP9001BK,"['deporte', 'calzado', 'running', 'negro']",67800,2025,5,32
+33,Gorra Classic Negra,GR5512BK,"['accesorios', 'negro', 'verano', 'urbano']",9200,2025,6,60
+106,Zapatillas Running Pro,ZP9001BK,"['deporte', 'calzado', 'running', 'negro']",67800,2025,1,36
+107,Campera Liviana Impermeable,CM9903GR,"['invierno', 'exterior', 'verde', 'impermeable']",45200,2025,1,29
+108,Jean Azul Slim,JN7721AZ,"['urbano', 'jeans', 'azul', 'moda']",32500,2025,1,45
+110,Gorra Classic Negra,GR5512BK,"['accesorios', 'negro', 'verano', 'urbano']",9200,2024,12,5
+111,Campera Liviana Impermeable,CM9903GR,"['invierno', 'exterior', 'verde', 'impermeable']",45200,2024,12,10
+112,Remera Urbana Blanca,RM1189BL,"['verano', 'camisetas', 'urbano', 'blanco', 'moda']",18500,2024,12,8
+114,Zapatillas Running Pro,ZP9001BK,"['deporte', 'calzado', 'running', 'negro']",67800,2024,12,13
+115,Jean Azul Slim,JN7721AZ,"['urbano', 'jeans', 'azul', 'moda']",32500,2024,12,4
+117,Gorra Classic Negra,GR5512BK,"['accesorios', 'negro', 'verano', 'urbano']",9200,2025,2,54
+124,Zapatillas Running Pro,ZP9001BK,"['deporte', 'calzado', 'running', 'negro']",67800,2025,2,44
+130,Remera Urbana Blanca,RM1189BL,"['verano', 'camisetas', 'urbano', 'blanco', 'moda']",18500,2025,1,40
+136,Jean Azul Slim,JN7721AZ,"['urbano', 'jeans', 'azul', 'moda']",32500,2025,2,53
+138,Jean Azul Slim,JN7721AZ,"['urbano', 'jeans', 'azul', 'moda']",32500,2025,3,36
+142,Campera Liviana Impermeable,CM9903GR,"['invierno', 'exterior', 'verde', 'impermeable']",45200,2025,2,44
+177,Gorra Classic Negra,GR5512BK,"['accesorios', 'negro', 'verano', 'urbano']",9200,2025,1,32
+234,Remera Urbana Blanca,RM1189BL,"['verano', 'camisetas', 'urbano', 'blanco', 'moda']",18500,2025,2,31
+699,Campera Parka Verde,CP4411VE,"['invierno', 'verde', 'urbano', 'camperas']",47500,2025,6,1
+700,Zapatillas Urbanas Blancas,ZP9900WH,"['urbano', 'blanco', 'calzado', 'moda']",52500,2025,6,1
+701,Buzo Oversize Bordó,BZ3022BO,"['invierno', 'urbano', 'buzo', 'bordó']",28800,2025,6,1
+702,Pantalón Jogger Negro,PN6603BK,"['urbano', 'negro', 'pantalones', 'comodidad']",23300,2025,6,2

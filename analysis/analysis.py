@@ -7,7 +7,7 @@ from db.connector import mongo_connector
 
 class analysis_db:
     def __init__(self):
-        self.conexion = mongo_connector("localhost", "27013", "mauro", "vinoblanco123")
+        self.conexion = 
         self.db = self.conexion.get_db("tienda")
         
     
@@ -31,7 +31,8 @@ class analysis_db:
 #•	Cantidad de clientes por ubicación
     def cant_clientes_por_ubicacion(self):
         df = pd.DataFrame(pd.json_normalize(self.obtener_datos("ventas")))
-        print(df["datos_cliente.domicilio.provincia"].value_counts())
+        df = df["datos_cliente.domicilio.provincia"].value_counts()
+        print(df)
 
 #•	Categorías de productos más vendidas
     def categorias_mas_vendidas(self):
@@ -82,9 +83,9 @@ class analysis_db:
         df = pd.DataFrame(pd.json_normalize(self.obtener_datos("ventas")))
 
         #como hay datos mal cargados en distintos niveles los junto todos en un unico dataframe concatenados
-        df1 = df[['orden_compra.fecha_pedido.$date','orden_compra.id_orden']]
+        df1 = df[['orden_compra.fecha_pedido.$date','orden_compra.id_orden','orden_compra.precio_total']]
         df1 = df1.rename(columns={'orden_compra.fecha_pedido.$date':'orden_compra.fecha_pedido'})
-        df2 = df[['orden_compra.fecha_pedido','orden_compra.id_orden']]
+        df2 = df[['orden_compra.fecha_pedido','orden_compra.id_orden', 'orden_compra.precio_total']]
 
         dfAux = pd.concat([df2,df1])
         #LIMPIAR FECHAS EN NULL POSIBLES
@@ -97,8 +98,14 @@ class analysis_db:
         dfAux['año_compra'] = pd.to_datetime(dfAux['orden_compra.fecha_pedido']).dt.year
         dfAux['mes_compra'] = pd.to_datetime(dfAux['orden_compra.fecha_pedido']).dt.month
 
+        dfAux = dfAux[['año_compra','mes_compra','orden_compra.precio_total']]
+
         #cantidad de ventas totales por mes.
-        print(dfAux.groupby(by=['año_compra','mes_compra'])['mes_compra'].value_counts())
+        dfAux = dfAux.groupby(by=['año_compra','mes_compra'])['orden_compra.precio_total'].agg('sum').reset_index()
+
+        dfAux = dfAux.sort_values(by=['año_compra','mes_compra'], ascending=False)
+
+        return dfAux
 
 #•	Ingreso promedio por cliente
     def ingreso_prom_por_cliente(self):
@@ -130,8 +137,13 @@ class analysis_db:
         #cantidad de filas en el dataframe significan cantidad de clientes que volvieron a comprar (sin duplicados.)
         print(df['datos_cliente.email'].count())
 
-#•	Productos más vendidos
+#•	Productos más vendidos totales
     def mejores_productos(self):
+        """
+        Muestra los productos mas vendidos.
+
+        """
+
         df = pd.DataFrame(pd.json_normalize(self.obtener_datos("ventas"), record_path=["orden_compra", "productos"], meta=[["orden_compra", "id_orden"]], errors='ignore'))
 
         #obtengo la cantidad de cada producto que se vendió hasta este momento, teniendo en cuenta la cantidad de cada uno en la orden de compra
@@ -140,8 +152,12 @@ class analysis_db:
         #elimino las duplicaciones para mejor analisis
         df.drop_duplicates(subset="nombre_producto", inplace=True)
 
-        #ordeno de mayor a menor por cantidad de ventas de cada producto, como solo hay 5 productos no puse un limite en le head.
-        print(df.sort_values(by='cant_ventas_prod', ascending=False).head())
+        df = df[['nombre_producto', 'identificador_producto', 'categorias', 'cant_ventas_prod', 'precio_unitario']]
+
+        #ordeno de mayor a menor por cantidad de ventas de cada producto
+        df = df.sort_values(by='cant_ventas_prod', ascending=False)
+
+        return df
 
 #•	Por ubicación
     def segmentacion_clientes_ubicacion(self):
@@ -154,7 +170,9 @@ class analysis_db:
         df.drop_duplicates(subset='datos_cliente.nombre_cliente', inplace=True)
 
         #ordeno por pais - prov - localidad y calculo la cantidad por ubicacion de cada combinacion
-        print(df.groupby(['datos_cliente.domicilio.pais','datos_cliente.domicilio.provincia', 'datos_cliente.domicilio.localidad']).size())
+        df = df.groupby(['datos_cliente.domicilio.pais','datos_cliente.domicilio.provincia', 'datos_cliente.domicilio.localidad']).size()
+        return df
+
 
 #•	Por volumen de compras (cuanto gasta en promedio)
     def segmentacion_clientes_volCompras(self):
@@ -173,7 +191,9 @@ class analysis_db:
         df.drop_duplicates(subset='datos_cliente.email', inplace=True)
 
         #muestro de mayor a menor por gasto promedio
-        print(df.sort_values(by='gasto_promedio', ascending=False))
+        df = df.sort_values(by='gasto_promedio', ascending=False)
+
+        return df
 
 #•	Por categorías preferidas
     def segmentacion_clientes_categoriasPreferidas(self):
@@ -195,6 +215,102 @@ class analysis_db:
         #obtengo las compras de cada categoria por cliente.
         print(dfClientesXProd.groupby(['datos_cliente.nombre_cliente', 'datos_cliente.email'])['categorias'].value_counts())
 
+    #informacion para una visualización
+    def gasto_promedio_por_ubicacion(self):
+        df = pd.DataFrame(pd.json_normalize(self.obtener_datos("ventas")))
+
+        #tomo las columnas que considero necesarias para una buena segmentación
+        df = df[['datos_cliente.email', 'datos_cliente.domicilio.pais', 'datos_cliente.domicilio.provincia', 'datos_cliente.domicilio.localidad']]
+
+        df.drop_duplicates(subset='datos_cliente.email',inplace=True)
+
+        #uso otro metodo para obtener información util
+        dfGastoPromedioCliente = self.segmentacion_clientes_volCompras()
+
+        dfGastoPromedioCliente = dfGastoPromedioCliente[['datos_cliente.email','gasto_promedio']]
+
+        #mergeo las tablas por email
+        dfGastoPromPorUbicacion = pd.merge(df, dfGastoPromedioCliente, on='datos_cliente.email')
+
+        #dejo la informacion interesante
+        dfGastoPromPorUbicacion = dfGastoPromPorUbicacion[['datos_cliente.domicilio.pais','datos_cliente.domicilio.provincia', 'datos_cliente.domicilio.localidad', 'gasto_promedio']]
+        
+        #obtengo el gasto promedio por ubicacion (no por cliente unitario)
+        dfGastoPromPorUbicacion['gasto_promedio'] = dfGastoPromPorUbicacion.groupby(['datos_cliente.domicilio.pais','datos_cliente.domicilio.provincia','datos_cliente.domicilio.localidad'])['gasto_promedio'].transform('mean').round(2)
+
+        #elimino duplicacion de datos
+        dfGastoPromPorUbicacion.drop_duplicates(subset=['datos_cliente.domicilio.pais','datos_cliente.domicilio.provincia','datos_cliente.domicilio.localidad'], inplace=True)
+
+        return dfGastoPromPorUbicacion
+
+#•	Dashboard con mapa de clientes
+    def exportar_mapa_clientes(self):
+        csv1 = self.segmentacion_clientes_ubicacion()
+        csv2 = self.gasto_promedio_por_ubicacion()
+
+        csv1.to_csv("datos_ubi_clientes.csv")
+        csv2.to_csv("datos_gasto_promedio_por_ubi.csv", decimal=",")
+
+#•	Dashboard con evolución mensual de ventas
+    def exportar_evol_mensual_ventas(self):
+        csv1 = self.total_ventas_mes()
+
+        csv1.to_csv("evolucion_mensual_ventas.csv", decimal=",")
+
+#•	Gráfico de barras de productos más vendidos (totales y por mes)
+    def exportar_prod_mas_vendidos(self):
+        csv1 = self.mejores_productos()
+        csv1.to_csv("mejores_productos_historico.csv")
+
+        csv2 = self.obtener_prod_mas_vendidos_por_mes()
+        csv2.to_csv("prod_mas_vendidos_por_mes.csv")
+
+    def obtener_prod_mas_vendidos_por_mes(self):
+        """
+        Muestra los productos mas vendidos por mes.
+
+        """
+
+        dfP = pd.DataFrame(pd.json_normalize(self.obtener_datos("ventas"), record_path=["orden_compra", "productos"], meta=[["orden_compra", "id_orden"]], errors='ignore'))
+
+        dfP = dfP[['orden_compra.id_orden','nombre_producto', 'cantidad','identificador_producto', 'categorias','precio_unitario']]
+
+        df = pd.DataFrame(pd.json_normalize(self.obtener_datos("ventas")))
+
+        #como hay datos mal cargados en distintos niveles los junto todos en un unico dataframe concatenados
+        df1 = df[['orden_compra.fecha_pedido.$date','orden_compra.id_orden']]
+        df1 = df1.rename(columns={'orden_compra.fecha_pedido.$date':'orden_compra.fecha_pedido'})
+        df2 = df[['orden_compra.fecha_pedido','orden_compra.id_orden']]
+
+        dfAux = pd.concat([df2,df1])
+        #LIMPIAR FECHAS EN NULL POSIBLES
+        dfAux.dropna(inplace=True)
+
+        #como algunas fechas tienen zona horaria y otras no, las pongo todas sin zona horaria.
+        dfAux['orden_compra.fecha_pedido'] = pd.to_datetime(dfAux['orden_compra.fecha_pedido'],utc=True).dt.tz_localize(None)
+
+        #extraigo el mes y el año de la fecha para un mejor calculo
+        dfAux['año_compra'] = pd.to_datetime(dfAux['orden_compra.fecha_pedido']).dt.year
+        dfAux['mes_compra'] = pd.to_datetime(dfAux['orden_compra.fecha_pedido']).dt.month
+
+        dfAux = dfAux[['año_compra','mes_compra', 'orden_compra.id_orden']]
+
+        #uno los dataframes por el id orden
+        df_ventas_prod_mes = pd.merge(dfP, dfAux, on='orden_compra.id_orden')
+
+        df_ventas_prod_mes = df_ventas_prod_mes[['nombre_producto', 'identificador_producto', 'categorias','cantidad','precio_unitario','año_compra','mes_compra']]
+
+        #hago la suma de la cantidad de productos vendidos por cada mes/año
+        df_ventas_prod_mes['cantidad_ventas_mes'] = df_ventas_prod_mes.groupby(['nombre_producto','año_compra','mes_compra'])['cantidad'].transform('sum')
+
+        df_ventas_prod_mes = df_ventas_prod_mes[['nombre_producto', 'identificador_producto', 'categorias','precio_unitario','año_compra','mes_compra', 'cantidad_ventas_mes']]
+
+        #elimino duplicidades
+        df_ventas_prod_mes.drop_duplicates(subset=['identificador_producto','año_compra', 'mes_compra', 'cantidad_ventas_mes'], inplace=True)
+        
+        return df_ventas_prod_mes
+
+
 aux = analysis_db()
 #aux.cant_clientes_por_ubicacion()
 #aux.categorias_mas_vendidas()
@@ -207,3 +323,9 @@ aux = analysis_db()
 #aux.segmentacion_clientes_ubicacion()
 #aux.segmentacion_clientes_volCompras()
 #aux.segmentacion_clientes_categoriasPreferidas()
+#aux.gasto_promedio_por_ubicacion()
+#aux.obtener_prod_mas_vendidos_por_mes()
+
+##aux.exportar_mapa_clientes()
+##aux.exportar_evol_mensual_ventas()
+aux.exportar_prod_mas_vendidos()

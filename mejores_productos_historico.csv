@@ -1,0 +1,10 @@
+,nombre_producto,identificador_producto,categorias,cant_ventas_prod,precio_unitario
+1,Gorra Classic Negra,GR5512BK,"['accesorios', 'negro', 'verano', 'urbano']",278,9200
+0,Jean Azul Slim,JN7721AZ,"['urbano', 'jeans', 'azul', 'moda']",273,32500
+3,Campera Liviana Impermeable,CM9903GR,"['invierno', 'exterior', 'verde', 'impermeable']",267,45200
+4,Remera Urbana Blanca,RM1189BL,"['verano', 'camisetas', 'urbano', 'blanco', 'moda']",262,18500
+2,Zapatillas Running Pro,ZP9001BK,"['deporte', 'calzado', 'running', 'negro']",237,67800
+695,Pantalón Jogger Negro,PN6603BK,"['urbano', 'negro', 'pantalones', 'comodidad']",2,23300
+692,Campera Parka Verde,CP4411VE,"['invierno', 'verde', 'urbano', 'camperas']",1,47500
+693,Zapatillas Urbanas Blancas,ZP9900WH,"['urbano', 'blanco', 'calzado', 'moda']",1,52500
+694,Buzo Oversize Bordó,BZ3022BO,"['invierno', 'urbano', 'buzo', 'bordó']",1,28800
